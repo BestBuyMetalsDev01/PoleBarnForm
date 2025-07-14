@@ -91,7 +91,7 @@ const App = () => {
   };
 
   // !!! IMPORTANT: Replace 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE' with your actual deployed URL !!!
-  const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxL5X8sIhASOENjSTNjZ0qLccQlJD9AOScMeHXX8nPZ9455MgkMjuEIc0M2l-QdxP1mew/exec'; 
+  const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCEL6cIYcc5-T19gyBCbKgb693KC4R7yt51S2x_IHL-MgQQEH4-4qQ6bSGP-67ex2riA/exec'; 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
