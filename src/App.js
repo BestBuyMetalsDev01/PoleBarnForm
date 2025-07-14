@@ -102,7 +102,7 @@ const App = () => {
         method: 'POST',
         mode: 'cors', // Crucial for cross-origin requests from your GitHub Page
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: JSON.stringify(formData),
       });
