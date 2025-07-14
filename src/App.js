@@ -9,7 +9,7 @@ const App = () => {
     email: '',
     phoneNumber: '',
     companyName: '',
-    buildingType: '', // New field: Building Type
+    buildingType: '', // New field: BuildingType
     numLeanTos: 0, // New field: Number of Lean-tos for complex type
     leanTos: [], // Array to hold data for each Lean-to
     width: '',
@@ -90,12 +90,51 @@ const App = () => {
     });
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  // !!! IMPORTANT: Replace 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE' with your actual deployed URL !!!
+  const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxL5X8sIhASOENjSTNjZ0qLccQlJD9AOScMeHXX8nPZ9455MgkMjuEIc0M2l-QdxP1mew/exec'; 
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // In a real application, you would send this data to a backend or CRM
-    alert('Form submitted successfully! Check the console for data.');
+    console.log('Attempting to submit form data:', formData);
+
+    try {
+      const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'cors', // Crucial for cross-origin requests from your GitHub Page
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        // Handle HTTP errors, e.g., 404, 500
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.result === 'success') {
+        alert('Quote request submitted successfully!');
+        // Optionally reset form here
+        setFormData({
+          firstName: '', lastName: '', email: '', phoneNumber: '', companyName: '',
+          buildingType: '', numLeanTos: 0, leanTos: [], width: '', length: '',
+          eaveHeight: '', isEnclosed: '', wantsWainscoting: '', wainscotingHeight: '',
+          roofStyle: '', otherRoofStyle: '', wantsPostAnchors: '', postAnchorType: '',
+          numOverheadDoors: 0, overheadDoorSizes: '', needsAutoOpeners: '',
+          numWalkinDoors: 0, walkinDoorStyles: '', numWindows: 0, windowSizesStyles: '',
+          buildingLocation: '', siteAccessible: '', additionalNotes: '',
+        });
+      } else {
+        alert(`Error submitting form: ${result.message}`);
+        console.error('Apps Script Error:', result.details || result.message);
+      }
+    } catch (error) {
+      console.error('Submission failed:', error);
+      alert(`An error occurred during submission. Please try again. Error: ${error.message}`);
+    }
   };
 
   // Common Tailwind classes for custom radio buttons
@@ -725,122 +764,123 @@ const App = () => {
           <div>
             <label htmlFor="numWalkinDoors" className="block text-sm font-medium text-gray-700 mb-1">Number of Walk-in Doors (for Main Building)</label>
             <input
-              type="number"
-              id="numWalkinDoors"
-              name="numWalkinDoors"
-              value={formData.numWalkinDoors}
-              onChange={handleChange}
-              min="0"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            />
-            {parseInt(formData.numWalkinDoors) > 0 && (
-              <div className="mt-4">
-                <label htmlFor="walkinDoorStyles" className="block text-sm font-medium text-gray-700 mb-1">Desired Walk-in Door Styles (e.g., standard, commercial, glass) for Main Building</label>
+                  type="number"
+                  id="numWalkinDoors"
+                  name="numWalkinDoors"
+                  value={formData.numWalkinDoors}
+                  onChange={handleChange}
+                  min="0"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                />
+                {parseInt(formData.numWalkinDoors) > 0 && (
+                  <div className="mt-4">
+                    <label htmlFor="walkinDoorStyles" className="block text-sm font-medium text-gray-700 mb-1">Desired Walk-in Door Styles (e.g., standard, commercial, glass) for Main Building</label>
+                    <input
+                      type="text"
+                      id="walkinDoorStyles"
+                      name="walkinDoorStyles"
+                      value={formData.walkinDoorStyles}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="numWindows" className="block text-sm font-medium text-gray-700 mb-1">Number of Windows (for Main Building)</label>
+                <input
+                  type="number"
+                  id="numWindows"
+                  name="numWindows"
+                  value={formData.numWindows}
+                  onChange={handleChange}
+                  min="0"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                />
+                {parseInt(formData.numWindows) > 0 && (
+                  <div className="mt-4">
+                    <label htmlFor="windowSizesStyles" className="block text-sm font-medium text-gray-700 mb-1">Desired Window Sizes and Styles for Main Building</label>
+                    <textarea
+                      id="windowSizesStyles"
+                      name="windowSizesStyles"
+                      value={formData.windowSizesStyles}
+                      onChange={handleChange}
+                      rows="3"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    ></textarea>
+                  </div>
+                )}
+              </div>
+
+              {/* Site Information */}
+              <h2 className="text-xl font-semibold text-gray-800 pt-4 border-t border-gray-200">Site Information</h2>
+              <div>
+                <label htmlFor="buildingLocation" className="block text-sm font-medium text-gray-700 mb-1">Building Location (City, State, Zip Code)</label>
                 <input
                   type="text"
-                  id="walkinDoorStyles"
-                  name="walkinDoorStyles"
-                  value={formData.walkinDoorStyles}
+                  id="buildingLocation"
+                  name="buildingLocation"
+                  value={formData.buildingLocation}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
-            )}
-          </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Is the building site accessible for large equipment?</label>
+                <div className="flex items-center space-x-4">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      name="siteAccessible"
+                      value="Yes"
+                      checked={formData.siteAccessible === 'Yes'}
+                      onChange={handleChange}
+                      className={radioClasses} // Apply custom classes
+                    />
+                    <span className={radioLabelClasses}>Yes</span>
+                  </label>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      name="siteAccessible"
+                      value="No"
+                      checked={formData.siteAccessible === 'No'}
+                      onChange={handleChange}
+                      className={radioClasses} // Apply custom classes
+                    />
+                    <span className={radioLabelClasses}>No</span>
+                  </label>
+                </div>
+              </div>
 
-          <div>
-            <label htmlFor="numWindows" className="block text-sm font-medium text-gray-700 mb-1">Number of Windows (for Main Building)</label>
-            <input
-              type="number"
-              id="numWindows"
-              name="numWindows"
-              value={formData.numWindows}
-              onChange={handleChange}
-              min="0"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            />
-            {parseInt(formData.numWindows) > 0 && (
-              <div className="mt-4">
-                <label htmlFor="windowSizesStyles" className="block text-sm font-medium text-gray-700 mb-1">Desired Window Sizes and Styles for Main Building</label>
+              {/* Additional Information */}
+              <h2 className="text-xl font-semibold text-gray-800 pt-4 border-t border-gray-200">Additional Information</h2>
+              <div>
+                <label htmlFor="additionalNotes" className="block text-sm font-medium text-gray-700 mb-1">Any additional notes or specific requirements?</label>
                 <textarea
-                  id="windowSizesStyles"
-                  name="windowSizesStyles"
-                  value={formData.windowSizesStyles}
+                  id="additionalNotes"
+                  name="additionalNotes"
+                  value={formData.additionalNotes}
                   onChange={handleChange}
-                  rows="3"
+                  rows="4"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 ></textarea>
               </div>
-            )}
-          </div>
 
-          {/* Site Information */}
-          <h2 className="text-xl font-semibold text-gray-800 pt-4 border-t border-gray-200">Site Information</h2>
-          <div>
-            <label htmlFor="buildingLocation" className="block text-sm font-medium text-gray-700 mb-1">Building Location (City, State, Zip Code)</label>
-            <input
-              type="text"
-              id="buildingLocation"
-              name="buildingLocation"
-              value={formData.buildingLocation}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            />
+              <div className="flex justify-center">
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 ease-in-out"
+                >
+                  Submit Quote Request
+                </button>
+              </div>
+            </form>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Is the building site accessible for large equipment?</label>
-            <div className="flex items-center space-x-4">
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="siteAccessible"
-                  value="Yes"
-                  checked={formData.siteAccessible === 'Yes'}
-                  onChange={handleChange}
-                  className={radioClasses} // Apply custom classes
-                />
-                <span className={radioLabelClasses}>Yes</span>
-              </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="siteAccessible"
-                  value="No"
-                  checked={formData.siteAccessible === 'No'}
-                  onChange={handleChange}
-                  className={radioClasses} // Apply custom classes
-                />
-                <span className={radioLabelClasses}>No</span>
-              </label>
-            </div>
-          </div>
+        </div>
+      );
+    };
 
-          {/* Additional Information */}
-          <h2 className="text-xl font-semibold text-gray-800 pt-4 border-t border-gray-200">Additional Information</h2>
-          <div>
-            <label htmlFor="additionalNotes" className="block text-sm font-medium text-gray-700 mb-1">Any additional notes or specific requirements?</label>
-            <textarea
-              id="additionalNotes"
-              name="additionalNotes"
-              value={formData.additionalNotes}
-              onChange={handleChange}
-              rows="4"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            ></textarea>
-          </div>
-
-          <div className="flex justify-center">
-            <button
-              type="submit"
-              className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 ease-in-out"
-            >
-              Submit Quote Request
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-export default App;
+    export default App;
+    
